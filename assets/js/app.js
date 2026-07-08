@@ -10,6 +10,7 @@
   // --- session state -------------------------------------------------------
   var state = {
     selectedTopics: Object.keys(TOPICS), // default: all
+    mode: "quiz",                        // "quiz" | "review"
     count: 10,
     questions: [],   // active run
     index: 0,
@@ -65,6 +66,24 @@
     if (best[key] == null || pct > best[key]) { best[key] = pct; }
     try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch (e) {}
     return best[key];
+  }
+
+  // Build a "documentation to review" block for a topic (used in review mode & results).
+  function topicDocsBlock(topicKey) {
+    var block = el(
+      '<div class="topicdocs">' +
+        '<p class="topicdocs__head">📚 Review ' + esc(TOPICS[topicKey].name) + ' — suggested reading</p>' +
+        '<ul class="review__links"></ul>' +
+      '</div>'
+    );
+    var ul = block.querySelector(".review__links");
+    (BIB[topicKey] || []).forEach(function (r) {
+      ul.appendChild(el(
+        '<li><a href="' + r.url + '" target="_blank" rel="noopener">' +
+          esc(r.title) + '<span class="review__src">' + esc(r.source) + '</span></a></li>'
+      ));
+    });
+    return block;
   }
 
   // ========================================================== SETUP VIEW ===
@@ -124,6 +143,26 @@
     });
     view.appendChild(controls);
 
+    // mode picker: quiz vs review
+    var modes = [
+      { key: "quiz", title: "Quiz mode", desc: "Test yourself. Instant right/wrong feedback per question; review resources appear at the end for weak topics." },
+      { key: "review", title: "Review mode", desc: "Study as you go. After each answer, see the explanation plus documentation links for that topic to review." },
+    ];
+    var modeCard = el('<div class="card"><h2 class="card__title">Mode</h2><div class="modes"></div></div>');
+    var modeWrap = modeCard.querySelector(".modes");
+    modes.forEach(function (m) {
+      var on = state.mode === m.key;
+      var b = el(
+        '<button type="button" class="mode' + (on ? " mode--on" : "") + '" aria-pressed="' + on + '">' +
+          '<span class="mode__title">' + (m.key === "review" ? "📚 " : "📝 ") + m.title + '</span>' +
+          '<span class="mode__desc">' + esc(m.desc) + '</span>' +
+        '</button>'
+      );
+      b.addEventListener("click", function () { state.mode = m.key; renderSetup(); });
+      modeWrap.appendChild(b);
+    });
+    view.appendChild(modeCard);
+
     var best = loadBest();
     var bestKey = state.selectedTopics.slice().sort().join("+");
     var bestLine = best[bestKey] != null
@@ -176,7 +215,8 @@
     view.appendChild(el(
       '<div class="progress">' +
         '<div class="progress__bar"><span style="width:' + pct + '%"></span></div>' +
-        '<div class="progress__meta"><span>Question ' + (state.index + 1) + ' of ' + total + '</span>' +
+        '<div class="progress__meta"><span>Question ' + (state.index + 1) + ' of ' + total +
+          '<span class="tag tag--mode">' + (state.mode === "review" ? "📚 Review" : "📝 Quiz") + '</span></span>' +
         '<span class="tag">' + TOPICS[q.topic].icon + ' ' + esc(TOPICS[q.topic].name) + '</span></div>' +
       '</div>'
     ));
@@ -189,18 +229,25 @@
     item.options.forEach(function (opt, i) {
       var picked = chosen.indexOf(i) !== -1;
       var cls = "option";
+      var glyph = "";
+      var note = "";
       if (locked) {
-        if (opt.correct) cls += " option--correct";
-        else if (picked) cls += " option--wrong";
-      } else if (picked) cls += " option--picked";
+        if (opt.correct && picked) { cls += " option--correct"; glyph = "✓"; }        // right pick
+        else if (opt.correct && !picked) {                                             // missed correct answer
+          cls += " option--missed";
+          note = '<span class="option__note">Correct answer — you missed this</span>';
+        }
+        else if (!opt.correct && picked) {                                             // wrong pick
+          cls += " option--wrong"; glyph = "✗";
+          note = '<span class="option__note option__note--bad">Your answer — incorrect</span>';
+        }
+      } else if (picked) { cls += " option--picked"; glyph = "✓"; }
 
       var mark = multi ? "checkbox" : "radio";
       var row = el(
         '<button type="button" class="' + cls + '" ' + (locked ? "disabled" : "") + '>' +
-          '<span class="option__mark option__mark--' + mark + '">' +
-            (locked ? (opt.correct ? "✓" : (picked ? "✗" : "")) : (picked ? "✓" : "")) +
-          '</span>' +
-          '<span class="option__text">' + esc(opt.text) + '</span>' +
+          '<span class="option__mark option__mark--' + mark + '">' + glyph + '</span>' +
+          '<span class="option__text">' + esc(opt.text) + note + '</span>' +
         '</button>'
       );
       if (!locked) {
@@ -228,6 +275,11 @@
           '<p class="explain__body">' + esc(q.explanation) + '</p>' +
         '</div>'
       ));
+
+      // Review mode: show documentation links for this topic to review
+      if (state.mode === "review") {
+        card.appendChild(topicDocsBlock(q.topic));
+      }
     }
     view.appendChild(card);
 

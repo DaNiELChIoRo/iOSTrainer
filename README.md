@@ -21,7 +21,9 @@ A zero-dependency web app that quizzes iOS engineers with **multiple-answer** qu
 
 ## Features
 
+- **Quiz mode vs. Review mode** — Quiz mode tests you and shows review resources at the end for weak topics; Review mode adds inline documentation links (Apple, Hacking with Swift, Kodeco, **SwiftLee**) for the topic right after each answer so you can study as you go.
 - **Multiple-answer questions** — the UI auto-detects "select one" vs. "select all that apply" from the answer key.
+- **Clear answer marking** — after checking: your correct picks are ✓ green, wrong picks are ✗ red, and any correct answer you *missed* is highlighted (dashed) with no check mark and a "you missed this" note.
 - **Instant feedback** with an explanation after each question.
 - **Per-topic breakdown** on the results screen.
 - **Smart review suggestions** — any topic under 70% gets curated links to review.

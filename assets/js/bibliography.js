@@ -8,11 +8,15 @@ window.BIBLIOGRAPHY = {
     { title: "The Swift Programming Language (official book)", source: "Apple Docs", url: "https://docs.swift.org/swift-book/" },
     { title: "What's new in Swift (June 2026 / Swift 6.4)", source: "Swift.org", url: "https://www.swift.org/blog/whats-new-in-swift-june-2026/" },
     { title: "Swift 6.4: What's new in concurrency", source: "SwiftLee", url: "https://www.avanderlee.com/concurrency/swift-6-4-whats-new-in-concurrency/" },
+    { title: "Optionals in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/optionals-in-swift/" },
+    { title: "Generics in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/generics/" },
+    { title: "Enumerations in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/enumerations/" },
     { title: "Swift knowledge & language basics", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/read" },
     { title: "Swift & Objective-C interoperability (bridging)", source: "Apple Docs", url: "https://developer.apple.com/documentation/swift/imported-c-and-objective-c-apis" },
   ],
   memory: [
     { title: "ARC & Memory Management in Swift", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/" },
+    { title: "Weak self and reference cycles explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/weak-self/" },
     { title: "How to avoid strong reference cycles", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/example-code/language/how-to-avoid-strong-reference-cycles-when-using-closures" },
     { title: "Memory management with ARC", source: "Kodeco", url: "https://www.kodeco.com/966538-arc-and-memory-management-in-swift" },
   ],
@@ -23,6 +27,8 @@ window.BIBLIOGRAPHY = {
   ],
   swiftui: [
     { title: "SwiftUI State & Data Flow", source: "Apple Docs", url: "https://developer.apple.com/documentation/swiftui/state-and-data-flow" },
+    { title: "@StateObject vs @ObservedObject differences", source: "SwiftLee", url: "https://www.avanderlee.com/swiftui/stateobject-observedobject-differences/" },
+    { title: "Property wrappers in Swift", source: "SwiftLee", url: "https://www.avanderlee.com/swift/property-wrappers/" },
     { title: "100 Days of SwiftUI", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/100/swiftui" },
     { title: "SwiftUI by tutorials", source: "Kodeco", url: "https://www.kodeco.com/books/swiftui-by-tutorials" },
   ],
@@ -39,6 +45,9 @@ window.BIBLIOGRAPHY = {
   concurrency: [
     { title: "Swift Concurrency (async/await, actors)", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/" },
     { title: "What is async/await in Swift?", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/quick-start/concurrency" },
+    { title: "Tasks in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/concurrency/tasks/" },
+    { title: "Actors in Swift: how to use and prevent data races", source: "SwiftLee", url: "https://www.avanderlee.com/concurrency/actors/" },
+    { title: "Concurrent vs Serial DispatchQueue (GCD)", source: "SwiftLee", url: "https://www.avanderlee.com/swift/concurrent-serial-dispatchqueue/" },
     { title: "Dispatch (Grand Central Dispatch) reference", source: "Apple Docs", url: "https://developer.apple.com/documentation/dispatch" },
     { title: "Modern concurrency in Swift", source: "Kodeco", url: "https://www.kodeco.com/books/modern-concurrency-in-swift" },
   ],
@@ -47,6 +56,7 @@ window.BIBLIOGRAPHY = {
     { title: "Alamofire (elegant HTTP networking)", source: "GitHub", url: "https://github.com/Alamofire/Alamofire" },
     { title: "URLSession — first-party networking", source: "Apple Docs", url: "https://developer.apple.com/documentation/foundation/urlsession" },
     { title: "Encoding and decoding with Codable", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/quick-start/swiftui/how-to-load-and-parse-json" },
+    { title: "Dependency Injection in Swift", source: "SwiftLee", url: "https://www.avanderlee.com/swift/dependency-injection/" },
   ],
   patterns: [
     { title: "Design Patterns by Tutorials", source: "Kodeco", url: "https://www.kodeco.com/books/design-patterns-by-tutorials" },
@@ -57,5 +67,6 @@ window.BIBLIOGRAPHY = {
     { title: "MVVM by Tutorials / iOS architecture", source: "Kodeco", url: "https://www.kodeco.com/34-design-patterns-by-tutorials-mvvm" },
     { title: "iOS Architecture Patterns (MVC, MVVM, VIPER)", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/113/how-to-use-the-mvvm-design-pattern-in-swift" },
     { title: "The Composable Architecture (TCA)", source: "GitHub", url: "https://github.com/pointfreeco/swift-composable-architecture" },
+    { title: "Dependency Injection to decouple layers", source: "SwiftLee", url: "https://www.avanderlee.com/swift/dependency-injection/" },
   ],
 };
