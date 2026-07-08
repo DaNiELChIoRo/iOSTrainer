@@ -522,6 +522,72 @@ window.QUIZ_DATA = [
     explanation: "`someArray.lazy.map{…}.filter{…}` defers work until iteration and skips intermediate allocations — great for partial consumption or huge/infinite sequences. But for small collections fully consumed, the per-element closure overhead can make lazy *slower*; it's a trade-off, not a universal win.",
   },
   {
+    id: "sw-comp-1", topic: "swift",
+    prompt: "Tricky: which statements about computed vs. stored properties are correct?",
+    options: [
+      { text: "A computed property doesn't store a value — its getter runs every time it's accessed", correct: true },
+      { text: "A computed property must be declared with `var`, even when it's read-only", correct: true },
+      { text: "A read-only computed property can omit `get` (e.g. `var area: Double { width * height }`)", correct: true },
+      { text: "Computed properties can be marked `lazy`", correct: false },
+    ],
+    explanation: "Computed properties calculate on each access and hold no storage, so they're always `var` (a value that can change can't be `let`), and a get-only one can drop the explicit `get`. `lazy` requires *stored* storage to cache into, so `lazy` + computed is illegal.",
+  },
+  {
+    id: "sw-comp-2", topic: "swift",
+    prompt: "Tricky: which are true about property observers (`willSet` / `didSet`)?",
+    options: [
+      { text: "They can only be attached to stored properties (or an inherited property you override)", correct: true },
+      { text: "`willSet` exposes the incoming value as `newValue`; `didSet` exposes `oldValue`", correct: true },
+      { text: "They do NOT fire when the property is first set inside the type's own initializer", correct: true },
+      { text: "You can put both a `didSet` and a custom `get`/`set` on the same property", correct: false },
+    ],
+    explanation: "Observers apply to stored properties and run on external mutation — but not during the owning initializer's first assignment. `willSet` gives `newValue`, `didSet` gives `oldValue`. A property is either computed (`get`/`set`) or stored-with-observers, never both.",
+  },
+  {
+    id: "sw-comp-3", topic: "swift",
+    prompt: "Tricky: given `var count = 0` and a read-only computed property `var next: Int { count += 1; return count }`, what is true?",
+    options: [
+      { text: "`next` is a computed property whose getter has a side effect, incrementing `count` on every read", correct: true },
+      { text: "Reading `next` twice returns 1 then 2", correct: true },
+      { text: "Side effects in a getter are legal but considered poor practice (getters should ideally be pure)", correct: true },
+      { text: "The compiler rejects it because getters cannot mutate other properties", correct: false },
+    ],
+    explanation: "This compiles: `next` is a read-only computed property, and its getter may mutate other stored properties, so each access bumps `count` (1, then 2, …). It's allowed but a code smell — callers expect reading a property to be side-effect-free.",
+  },
+  {
+    id: "sw-pw-1", topic: "swift",
+    prompt: "Which statements about how a property wrapper is defined are correct?",
+    options: [
+      { text: "It's a type annotated with `@propertyWrapper` that must expose a `wrappedValue` property", correct: true },
+      { text: "Applying it (e.g. `@Clamped var x`) makes the compiler synthesize backing storage of the wrapper type", correct: true },
+      { text: "It exists to reuse access/validation logic across many properties without repeating it", correct: true },
+      { text: "A property wrapper must be a class (reference type)", correct: false },
+    ],
+    explanation: "A property wrapper is any `@propertyWrapper` type (commonly a `struct`) exposing `wrappedValue`. Using it generates hidden backing storage and routes get/set through the wrapper — great for reusable behavior like clamping, `@UserDefault`, or thread-safety. It doesn't have to be a class.",
+  },
+  {
+    id: "sw-pw-2", topic: "swift",
+    prompt: "Tricky: which are true about `wrappedValue`, `projectedValue`, and backing storage?",
+    options: [
+      { text: "The `$` prefix (e.g. `$value`) exposes the wrapper's `projectedValue`", correct: true },
+      { text: "The underscore name (e.g. `_value`) refers to the wrapper instance / backing storage itself", correct: true },
+      { text: "`projectedValue` is optional — a wrapper only offers `$` access if it defines one", correct: true },
+      { text: "In SwiftUI, `$state` returns the plain wrapped value, identical to `state`", correct: false },
+    ],
+    explanation: "`wrappedValue` is what you get with the bare name, `projectedValue` (if defined) is reached via `$`, and `_name` is the wrapper storage. In SwiftUI, `@State var x` projects a `Binding` via `$x` — that's different from the value `x` itself.",
+  },
+  {
+    id: "sw-pw-3", topic: "swift",
+    prompt: "Tricky: which of these are genuine limitations or facts about property wrappers?",
+    options: [
+      { text: "A wrapped property cannot also be a computed property (the wrapper provides the accessors)", correct: true },
+      { text: "A stored property can't be both wrapped and have `lazy` at the same time", correct: true },
+      { text: "Wrappers can define `init(wrappedValue:)` to allow default-value syntax like `@Clamped var x = 5`", correct: true },
+      { text: "A single property can stack unlimited wrappers with no ordering rules", correct: false },
+    ],
+    explanation: "A property wrapper supplies the storage/accessors, so it can't be combined with a computed property or `lazy`. Defining `init(wrappedValue:)` enables the `= value` initializer syntax. Composition (multiple wrappers) IS possible but is order-sensitive and constrained — not unlimited or rule-free.",
+  },
+  {
     id: "sw-struct-1", topic: "swift",
     prompt: "Tricky: which statements accurately distinguish structs from classes in Swift?",
     options: [
