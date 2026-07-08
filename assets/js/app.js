@@ -173,10 +173,61 @@
         '<button id="startBtn" class="btn btn--primary btn--lg">Start quiz →</button>' +
         bestLine +
         '<p class="start__meta">' + available + ' questions available across ' + state.selectedTopics.length + ' topic(s)</p>' +
+        '<button id="techBtn" class="btn btn--ghost start__tech">🛠️ Advanced / Hacker Techniques (reference)</button>' +
       '</div>'
     );
     start.querySelector("#startBtn").addEventListener("click", startQuiz);
+    start.querySelector("#techBtn").addEventListener("click", renderTechniques);
     view.appendChild(start);
+
+    swap(view);
+  }
+
+  // ===================================================== TECHNIQUES (REF) ===
+  function renderTechniques() {
+    var T = window.HACKER_TECHNIQUES;
+    var view = el('<section class="view view--tech"></section>');
+
+    view.appendChild(el(
+      '<div class="hero hero--tech">' +
+        '<h1 class="hero__title">🛠️ Advanced / Hacker Techniques</h1>' +
+        '<p class="hero__sub">Reference material — not a quiz. Advanced Objective-C runtime, debugging, and reverse-engineering techniques for iOS.</p>' +
+      '</div>'
+    ));
+
+    view.appendChild(el(
+      '<div class="disclaimer">⚠️ ' + esc(T.disclaimer) + '</div>'
+    ));
+
+    T.groups.forEach(function (g) {
+      var card = el('<div class="card"><h2 class="card__title">' + esc(g.title) + '</h2></div>');
+      g.items.forEach(function (it) {
+        var tech = el(
+          '<div class="tech">' +
+            '<div class="tech__head"><h3 class="tech__name">' + esc(it.name) + '</h3>' +
+              '<span class="tech__level tech__level--' + it.level.toLowerCase() + '">' + esc(it.level) + '</span></div>' +
+            '<p class="tech__what"><strong>What:</strong> ' + esc(it.what) + '</p>' +
+            '<p class="tech__why"><strong>Why / when:</strong> ' + esc(it.why) + '</p>' +
+            '<ul class="review__links tech__links"></ul>' +
+          '</div>'
+        );
+        var ul = tech.querySelector(".tech__links");
+        (it.links || []).forEach(function (r) {
+          ul.appendChild(el(
+            '<li><a href="' + r.url + '" target="_blank" rel="noopener">' +
+              esc(r.title) + '<span class="review__src">' + esc(r.source) + '</span></a></li>'
+          ));
+        });
+        card.appendChild(tech);
+      });
+      view.appendChild(card);
+    });
+
+    var actions = el('<div class="actions"></div>');
+    var back = el('<button class="btn btn--primary">← Back to quiz setup</button>');
+    back.addEventListener("click", renderSetup);
+    actions.appendChild(back);
+    view.appendChild(actions);
 
     swap(view);
   }

@@ -13,6 +13,7 @@ window.QUIZ_TOPICS = {
   coredata:    { name: "Core Data",         icon: "💾", blurb: "Contexts, persistent container, fetching, faulting." },
   concurrency: { name: "Concurrency",       icon: "⚡", blurb: "async/await, actors, Task, MainActor, Sendable." },
   combine:     { name: "Combine / Reactive", icon: "🔗", blurb: "Publishers, subscribers, operators, subjects, schedulers." },
+  objc:        { name: "Objective-C",        icon: "🅾️", blurb: "When to use, property attributes, atomicity, the runtime, swizzling." },
   libraries:   { name: "Third-Party Libs",  icon: "📦", blurb: "Alamofire, image loading, DI, Realm, SPM/CocoaPods." },
   patterns:    { name: "Design Patterns",   icon: "♟️", blurb: "Creational, structural, behavioral; delegate, observer, singleton." },
   architecture:{ name: "Architecture",      icon: "🏛️", blurb: "MVC, MVVM, VIPER, Clean, TCA; separation of concerns." },
@@ -496,6 +497,50 @@ window.QUIZ_DATA = [
     ],
     explanation: "Enums are powerful value types: associated values model payloads, raw values map cases to literals, and they support methods/computed properties. A single enum can't mix raw values and associated values.",
   },
+  {
+    id: "sw-lazy-1", topic: "swift",
+    prompt: "Which statements about a `lazy var` stored property are correct?",
+    options: [
+      { text: "Its initial value isn't computed until the property is first accessed", correct: true },
+      { text: "It's useful when the initial value is expensive or depends on other properties (e.g. `self`)", correct: true },
+      { text: "It must be declared with `var`, not `let`", correct: true },
+      { text: "Accessing a `lazy var` is guaranteed to be thread-safe", correct: false },
+    ],
+    explanation: "`lazy` defers initialization until first use, which helps for costly setup or values that need `self`. It must be a `var` (its value is set after init). Lazy initialization is NOT atomic — concurrent first-access from multiple threads can compute it more than once or race.",
+  },
+  {
+    id: "sw-lazy-2", topic: "swift",
+    prompt: "Which are true about laziness in Swift sequences/collections (`.lazy`)?",
+    options: [
+      { text: "`.lazy` makes operations like `map`/`filter` compute elements on demand instead of eagerly", correct: true },
+      { text: "It can avoid building intermediate arrays when chaining transforms", correct: true },
+      { text: "It's beneficial when you only consume part of a large or infinite sequence", correct: true },
+      { text: "A lazy chain always performs better than an eager one, in every case", correct: false },
+    ],
+    explanation: "`someArray.lazy.map{…}.filter{…}` defers work until iteration and skips intermediate allocations — great for partial consumption or huge/infinite sequences. But for small collections fully consumed, the per-element closure overhead can make lazy *slower*; it's a trade-off, not a universal win.",
+  },
+  {
+    id: "sw-struct-1", topic: "swift",
+    prompt: "Tricky: which statements accurately distinguish structs from classes in Swift?",
+    options: [
+      { text: "Structs are value types (copied); classes are reference types (shared)", correct: true },
+      { text: "Only classes support inheritance", correct: true },
+      { text: "Classes get identity comparison via `===`; structs do not", correct: true },
+      { text: "Structs support deinitializers (`deinit`) just like classes", correct: false },
+    ],
+    explanation: "Classes add reference semantics, inheritance, identity (`===`), and `deinit` — none of which structs have. Structs get a memberwise initializer and value semantics. Swift guidance: prefer structs by default, reach for classes when you need identity, inheritance, or shared mutable state.",
+  },
+  {
+    id: "sw-func-1", topic: "swift",
+    prompt: "Tricky: are functions object/reference types in Swift?",
+    options: [
+      { text: "Yes — functions and closures are reference types (first-class objects you can pass around)", correct: true },
+      { text: "A function's type is written as `(Params) -> ReturnType`", correct: true },
+      { text: "Functions can be stored in variables, passed as arguments, and returned from other functions", correct: true },
+      { text: "Functions are value types that are copied whenever assigned", correct: false },
+    ],
+    explanation: "Functions are first-class citizens in Swift and are *reference* types (a closure capturing state shares that state when assigned). You can store them (`let f: (Int) -> Int`), pass them, and return them — the foundation of higher-order functions and closures.",
+  },
 
   /* --------------------------------------------- SWIFT · INTEROP & BRIDGING (tricky) */
   {
@@ -870,5 +915,73 @@ window.QUIZ_DATA = [
       { text: "Apple has deprecated Combine, so it can no longer be used", correct: false },
     ],
     explanation: "Combine and async/await coexist: you can bridge a publisher into `for await` via `.values`. Combine shines for ongoing UI event streams and operator composition; async/await is often cleaner for one-shot tasks. Combine is not deprecated.",
+  },
+
+  /* -------------------------------------------------------------- OBJECTIVE-C */
+  {
+    id: "objc-1", topic: "objc",
+    prompt: "When is it still appropriate to reach for Objective-C in modern iOS work?",
+    options: [
+      { text: "Maintaining or interoperating with existing Objective-C codebases", correct: true },
+      { text: "Interfacing with C / C++ APIs where Objective-C(++) bridges cleanly", correct: true },
+      { text: "Runtime dynamism (swizzling, dynamic method resolution) that Swift can't do natively", correct: true },
+      { text: "Starting a brand-new greenfield app because Objective-C is faster than Swift", correct: false },
+    ],
+    explanation: "Objective-C remains relevant for legacy interop, C/C++ bridging, and dynamic-runtime tricks. New code is written in Swift by default; performance is not a reason to choose Objective-C for greenfield apps.",
+  },
+  {
+    id: "objc-2", topic: "objc",
+    prompt: "What does the `nonatomic` property attribute mean, and why is it commonly used?",
+    options: [
+      { text: "Accessors are NOT synchronized, so reads/writes aren't guaranteed thread-safe", correct: true },
+      { text: "It's faster than `atomic` because it skips per-access locking", correct: true },
+      { text: "It's typical for UI properties, which are accessed on the main thread anyway", correct: true },
+      { text: "`nonatomic` guarantees thread safety across concurrent access", correct: false },
+    ],
+    explanation: "`nonatomic` skips the synchronization `atomic` adds, so it's faster but not thread-safe. Since `atomic` only guarantees each accessor is not interrupted (not overall correctness), most properties — especially main-thread UI ones — are declared `nonatomic`.",
+  },
+  {
+    id: "objc-3", topic: "objc",
+    prompt: "Which statements about Objective-C property memory attributes are correct?",
+    options: [
+      { text: "`strong` keeps a strong (owning) reference — the default for objects under ARC", correct: true },
+      { text: "`weak` is a non-owning reference that becomes `nil` when the object is deallocated", correct: true },
+      { text: "`copy` stores an immutable copy — commonly used for `NSString`/`NSArray` and blocks", correct: true },
+      { text: "`assign` is the correct choice for object references under ARC", correct: false },
+    ],
+    explanation: "`strong`/`weak`/`copy` map to ARC ownership semantics; `copy` protects against a mutable subclass being passed in. `assign` (or `unsafe_unretained`) is for primitives/scalars, not object references — using it on objects risks dangling pointers.",
+  },
+  {
+    id: "objc-4", topic: "objc",
+    prompt: "Which are true about Objective-C's message-passing runtime?",
+    options: [
+      { text: "Method calls are dynamic messages, compiled to `objc_msgSend(receiver, selector, …)`", correct: true },
+      { text: "Sending a message to `nil` is legal and returns nil/0 without crashing", correct: true },
+      { text: "`respondsToSelector:` lets you check if an object handles a message at runtime", correct: true },
+      { text: "Method dispatch is resolved entirely at compile time (static dispatch)", correct: false },
+    ],
+    explanation: "Objective-C uses dynamic dispatch via `objc_msgSend`, resolving selectors at runtime. Messaging `nil` is a no-op returning zero — unlike a Swift force-unwrap crash — and you can introspect capabilities with `respondsToSelector:`.",
+  },
+  {
+    id: "objc-5", topic: "objc",
+    prompt: "What is method swizzling?",
+    options: [
+      { text: "Swapping the implementations of two methods at runtime (e.g. `method_exchangeImplementations`)", correct: true },
+      { text: "A runtime technique enabled by Objective-C's dynamic dispatch", correct: true },
+      { text: "Commonly used for cross-cutting concerns like logging or analytics on existing methods", correct: true },
+      { text: "A compile-time optimization the Swift compiler performs automatically", correct: false },
+    ],
+    explanation: "Swizzling exchanges method IMPs via the runtime (`method_exchangeImplementations`), letting you intercept existing behavior. It's powerful but risky — it affects all instances globally and can break with load-order or upstream changes. It is a runtime technique, not a compiler optimization.",
+  },
+  {
+    id: "objc-6", topic: "objc",
+    prompt: "Which are correct about categories and extensions in Objective-C?",
+    options: [
+      { text: "A category adds methods to an existing class without subclassing", correct: true },
+      { text: "A class extension (anonymous category) can add private methods and properties, typically in the .m file", correct: true },
+      { text: "Categories cannot safely add stored properties directly (you use associated objects instead)", correct: true },
+      { text: "If two categories define the same method, the runtime reliably picks the 'best' one", correct: false },
+    ],
+    explanation: "Categories extend classes with new methods; class extensions declare private API. Categories can't add real instance variables — associated objects fill that gap. Duplicate category methods produce undefined which-wins behavior, so it should be avoided.",
   },
 ];

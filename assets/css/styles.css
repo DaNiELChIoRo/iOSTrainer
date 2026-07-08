@@ -126,6 +126,25 @@ body {
 .mode__title { font-weight: 700; }
 .mode__desc { font-size: .8rem; color: var(--text-dim); }
 
+.start__tech { margin-top: 18px; font-size: .92rem; }
+
+/* advanced techniques (reference) */
+.disclaimer {
+  border: 1px solid color-mix(in srgb, var(--mid) 45%, var(--border));
+  background: color-mix(in srgb, var(--mid) 10%, var(--bg-elev));
+  color: var(--text); border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: .88rem;
+}
+.tech { padding: 14px 0; border-top: 1px solid var(--border); }
+.tech:first-of-type { border-top: none; padding-top: 0; }
+.tech__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.tech__name { margin: 0; font-size: 1.02rem; }
+.tech__level { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.tech__level--advanced { background: color-mix(in srgb, var(--accent) 18%, var(--bg-elev)); color: var(--accent); }
+.tech__level--expert { background: color-mix(in srgb, var(--low) 18%, var(--bg-elev)); color: var(--low); }
+.tech__level--defensive { background: color-mix(in srgb, var(--good) 18%, var(--bg-elev)); color: var(--good); }
+.tech__what, .tech__why { margin: 6px 0; font-size: .9rem; color: var(--text); }
+.tech__links { margin-top: 10px; }
+
 .start { text-align: center; margin-top: 8px; }
 .start__best { color: var(--text-dim); margin: 12px 0 0; }
 .start__meta { color: var(--text-dim); font-size: .82rem; margin: 8px 0 0; }

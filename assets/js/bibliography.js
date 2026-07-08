@@ -58,6 +58,12 @@ window.BIBLIOGRAPHY = {
     { title: "Introduction to Combine", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/books/ios-swiftui/adding-combine-publishers-to-a-swiftui-view" },
     { title: "Combine: Asynchronous Programming with Swift", source: "Kodeco", url: "https://www.kodeco.com/books/combine-asynchronous-programming-with-swift" },
   ],
+  objc: [
+    { title: "Programming with Objective-C", source: "Apple Docs", url: "https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/Introduction/Introduction.html" },
+    { title: "Objective-C Runtime reference", source: "Apple Docs", url: "https://developer.apple.com/documentation/objectivec/objective-c_runtime" },
+    { title: "Method Swizzling", source: "NSHipster", url: "https://nshipster.com/method-swizzling/" },
+    { title: "Associated Objects", source: "NSHipster", url: "https://nshipster.com/associated-objects/" },
+  ],
   libraries: [
     { title: "Swift Package Manager", source: "Apple Docs", url: "https://developer.apple.com/documentation/xcode/swift-packages" },
     { title: "Alamofire (elegant HTTP networking)", source: "GitHub", url: "https://github.com/Alamofire/Alamofire" },
