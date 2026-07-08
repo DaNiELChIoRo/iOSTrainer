@@ -18,6 +18,10 @@
     locked: {},      // id -> true once submitted
   };
 
+  // tracks last topic click across re-renders so we can detect a double-click
+  // (single-click rebuilds the setup view, which would break a native dblclick)
+  var lastTopicClick = { key: null, time: 0 };
+
   // --- helpers -------------------------------------------------------------
   function shuffle(arr) {
     var a = arr.slice();
@@ -101,7 +105,7 @@
     ));
 
     // topic picker
-    var picker = el('<div class="card"><h2 class="card__title">Choose topics</h2><div class="topic-grid"></div></div>');
+    var picker = el('<div class="card"><h2 class="card__title">Choose topics</h2><p class="card__hint-line">Tap to toggle · <strong>double-tap</strong> to quiz that topic only</p><div class="topic-grid"></div></div>');
     var grid = picker.querySelector(".topic-grid");
     Object.keys(TOPICS).forEach(function (key) {
       var t = TOPICS[key];
@@ -116,9 +120,18 @@
         '</button>'
       );
       chip.addEventListener("click", function () {
-        var i = state.selectedTopics.indexOf(key);
-        if (i === -1) state.selectedTopics.push(key);
-        else if (state.selectedTopics.length > 1) state.selectedTopics.splice(i, 1);
+        var now = Date.now();
+        var isDouble = lastTopicClick.key === key && (now - lastTopicClick.time) < 350;
+        lastTopicClick = { key: key, time: now };
+        if (isDouble) {
+          // double-click: quiz only this topic
+          state.selectedTopics = [key];
+        } else {
+          // single-click: toggle (keep at least one selected)
+          var i = state.selectedTopics.indexOf(key);
+          if (i === -1) state.selectedTopics.push(key);
+          else if (state.selectedTopics.length > 1) state.selectedTopics.splice(i, 1);
+        }
         renderSetup();
       });
       grid.appendChild(chip);

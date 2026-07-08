@@ -77,6 +77,7 @@ body {
   border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow);
 }
 .card__title { margin: 0 0 14px; font-size: 1.05rem; font-weight: 700; }
+.card__hint-line { margin: -8px 0 14px; font-size: .82rem; color: var(--text-dim); }
 
 .btn {
   border: none; border-radius: 12px; padding: 13px 20px; font-size: 1rem; font-weight: 600;
