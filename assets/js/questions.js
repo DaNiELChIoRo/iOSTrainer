@@ -12,6 +12,7 @@ window.QUIZ_TOPICS = {
   swiftdata:   { name: "SwiftData",         icon: "🗃️", blurb: "@Model, ModelContainer, @Query, ModelContext." },
   coredata:    { name: "Core Data",         icon: "💾", blurb: "Contexts, persistent container, fetching, faulting." },
   concurrency: { name: "Concurrency",       icon: "⚡", blurb: "async/await, actors, Task, MainActor, Sendable." },
+  combine:     { name: "Combine / Reactive", icon: "🔗", blurb: "Publishers, subscribers, operators, subjects, schedulers." },
   libraries:   { name: "Third-Party Libs",  icon: "📦", blurb: "Alamofire, image loading, DI, Realm, SPM/CocoaPods." },
   patterns:    { name: "Design Patterns",   icon: "♟️", blurb: "Creational, structural, behavioral; delegate, observer, singleton." },
   architecture:{ name: "Architecture",      icon: "🏛️", blurb: "MVC, MVVM, VIPER, Clean, TCA; separation of concerns." },
@@ -768,5 +769,84 @@ window.QUIZ_DATA = [
       { text: "Always pick the newest/most complex architecture regardless of project size", correct: false },
     ],
     explanation: "There's no universally 'best' architecture — choose based on app size, team familiarity, testability needs, and consistency. Over-engineering a small app with a heavy architecture adds cost without benefit.",
+  },
+
+  /* ------------------------------------------------------- COMBINE / REACTIVE */
+  {
+    id: "cmb-1", topic: "combine",
+    prompt: "Which statements about the core Combine types are correct?",
+    options: [
+      { text: "A `Publisher` emits a stream of values over time and can complete or fail", correct: true },
+      { text: "A `Subscriber` receives values and controls demand from the publisher", correct: true },
+      { text: "`Operator`s are publishers that transform values from an upstream publisher", correct: true },
+      { text: "A publisher can never emit an error, only values", correct: false },
+    ],
+    explanation: "Combine models async events as Publisher → (Operators) → Subscriber. A publisher emits zero or more values, then either finishes or fails with an `Error` (unless its `Failure` type is `Never`). Operators are themselves publishers that wrap an upstream.",
+  },
+  {
+    id: "cmb-2", topic: "combine",
+    prompt: "Which are true about `sink`, `assign`, and `AnyCancellable`?",
+    options: [
+      { text: "`sink` subscribes with closures for received values and completion", correct: true },
+      { text: "`assign(to:on:)` writes emitted values directly to a property via key path", correct: true },
+      { text: "Both return an `AnyCancellable` you must retain or the subscription is cancelled", correct: true },
+      { text: "A subscription stays alive even if its `AnyCancellable` is deallocated", correct: false },
+    ],
+    explanation: "`sink` and `assign` create subscriptions returning `AnyCancellable`. If you don't store it (e.g. in a `Set<AnyCancellable>`), it deallocates and cancels the subscription immediately — a very common Combine bug.",
+  },
+  {
+    id: "cmb-3", topic: "combine",
+    prompt: "Which describe Combine subjects correctly?",
+    options: [
+      { text: "`PassthroughSubject` has no initial value and only forwards values sent after subscription", correct: true },
+      { text: "`CurrentValueSubject` holds a current value and emits it immediately to new subscribers", correct: true },
+      { text: "You imperatively emit values with `subject.send(_:)`", correct: true },
+      { text: "`PassthroughSubject` replays its last value to late subscribers", correct: false },
+    ],
+    explanation: "Subjects let you imperatively bridge non-Combine code into a pipeline via `send`. `CurrentValueSubject` stores and replays its latest value; `PassthroughSubject` does not — late subscribers only see subsequent emissions.",
+  },
+  {
+    id: "cmb-4", topic: "combine",
+    prompt: "Match the Combine operator to what it does:",
+    options: [
+      { text: "`map` → transform each value synchronously", correct: true },
+      { text: "`flatMap` → replace each value with a new publisher and flatten the results", correct: true },
+      { text: "`combineLatest` → emit a combined tuple whenever any source publisher emits", correct: true },
+      { text: "`debounce` → emit every value immediately with no delay", correct: false },
+    ],
+    explanation: "`map` transforms values, `flatMap` swaps in and flattens inner publishers, `combineLatest` merges the latest values of multiple publishers. `debounce` does the opposite of the false option — it waits for a pause in emissions before forwarding the latest value (great for search fields).",
+  },
+  {
+    id: "cmb-5", topic: "combine",
+    prompt: "Which statements about scheduling with `receive(on:)` and `subscribe(on:)` are correct?",
+    options: [
+      { text: "`receive(on:)` controls the scheduler where downstream (e.g. sink/UI) receives values", correct: true },
+      { text: "Use `receive(on: DispatchQueue.main)` before updating UI from a background publisher", correct: true },
+      { text: "`subscribe(on:)` affects where the subscription/upstream work is performed", correct: true },
+      { text: "`receive(on:)` and `subscribe(on:)` are interchangeable and always equivalent", correct: false },
+    ],
+    explanation: "`subscribe(on:)` sets where upstream setup/work runs; `receive(on:)` sets where downstream values are delivered. They serve different purposes — hop to the main queue with `receive(on:)` before touching UI.",
+  },
+  {
+    id: "cmb-6", topic: "combine",
+    prompt: "Which are true about `@Published` and error handling in Combine?",
+    options: [
+      { text: "`@Published` synthesizes a publisher accessible via the `$` projected value", correct: true },
+      { text: "A `@Published` publisher's `Failure` type is `Never` (it cannot fail)", correct: true },
+      { text: "`catch` lets you replace a failing upstream with another publisher", correct: true },
+      { text: "Once a publisher fails, it keeps emitting new values afterward", correct: false },
+    ],
+    explanation: "`@Published` exposes a `Never`-failing publisher through `$property`. Failure is terminal — after a `.failure` completion no more values arrive — so you recover with operators like `catch`, `retry`, or `replaceError`.",
+  },
+  {
+    id: "cmb-7", topic: "combine",
+    prompt: "How do Combine and Swift Concurrency (async/await) relate?",
+    options: [
+      { text: "Both handle asynchronous work, but Combine is declarative/stream-based while async/await is imperative", correct: true },
+      { text: "A publisher's `.values` property exposes it as an `AsyncSequence`", correct: true },
+      { text: "Combine excels at continuous streams and complex event composition (debounce, combineLatest)", correct: true },
+      { text: "Apple has deprecated Combine, so it can no longer be used", correct: false },
+    ],
+    explanation: "Combine and async/await coexist: you can bridge a publisher into `for await` via `.values`. Combine shines for ongoing UI event streams and operator composition; async/await is often cleaner for one-shot tasks. Combine is not deprecated.",
   },
 ];

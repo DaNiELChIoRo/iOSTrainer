@@ -51,6 +51,13 @@ window.BIBLIOGRAPHY = {
     { title: "Dispatch (Grand Central Dispatch) reference", source: "Apple Docs", url: "https://developer.apple.com/documentation/dispatch" },
     { title: "Modern concurrency in Swift", source: "Kodeco", url: "https://www.kodeco.com/books/modern-concurrency-in-swift" },
   ],
+  combine: [
+    { title: "Combine framework reference", source: "Apple Docs", url: "https://developer.apple.com/documentation/combine" },
+    { title: "Getting started with the Combine framework", source: "SwiftLee", url: "https://www.avanderlee.com/swift/combine/" },
+    { title: "Creating a custom Combine publisher", source: "SwiftLee", url: "https://www.avanderlee.com/swift/custom-combine-publisher/" },
+    { title: "Introduction to Combine", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/books/ios-swiftui/adding-combine-publishers-to-a-swiftui-view" },
+    { title: "Combine: Asynchronous Programming with Swift", source: "Kodeco", url: "https://www.kodeco.com/books/combine-asynchronous-programming-with-swift" },
+  ],
   libraries: [
     { title: "Swift Package Manager", source: "Apple Docs", url: "https://developer.apple.com/documentation/xcode/swift-packages" },
     { title: "Alamofire (elegant HTTP networking)", source: "GitHub", url: "https://github.com/Alamofire/Alamofire" },
