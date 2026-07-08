@@ -3,7 +3,12 @@
   "use strict";
 
   var TOPICS = window.QUIZ_TOPICS;
-  var DATA = window.QUIZ_DATA;
+  // hand-curated bank + auto-generated bank. Auto-generated questions (from the
+  // Ollama scan pipeline) are quarantined until a human sets reviewed:true, so
+  // unverified AI output never appears in a quiz.
+  var DATA = (window.QUIZ_DATA || []).concat(
+    (window.QUIZ_DATA_AUTO || []).filter(function (q) { return q && q.reviewed === true; })
+  );
   var BIB = window.BIBLIOGRAPHY;
   var app = document.getElementById("app");
 
