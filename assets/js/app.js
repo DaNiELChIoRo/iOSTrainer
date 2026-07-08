@@ -105,6 +105,7 @@
     ));
 
     // topic picker
+    var chipEls = {}; // key -> chip element, for in-place selection updates
     var picker = el('<div class="card"><h2 class="card__title">Choose topics</h2><p class="card__hint-line">Tap to toggle · <strong>double-tap</strong> to quiz that topic only</p><div class="topic-grid"></div></div>');
     var grid = picker.querySelector(".topic-grid");
     Object.keys(TOPICS).forEach(function (key) {
@@ -132,28 +133,16 @@
           if (i === -1) state.selectedTopics.push(key);
           else if (state.selectedTopics.length > 1) state.selectedTopics.splice(i, 1);
         }
-        renderSetup();
+        syncSetup();
       });
+      chipEls[key] = chip;
       grid.appendChild(chip);
     });
     view.appendChild(picker);
 
-    // length + start
-    var available = DATA.filter(function (q) {
-      return state.selectedTopics.indexOf(q.topic) !== -1;
-    }).length;
-    var choices = [5, 10, 15, 20].filter(function (c) { return c <= available; });
-    if (choices.indexOf(available) === -1) choices.push(available); // "all"
-    if (state.count > available) state.count = available;
-
+    // length picker (contents are rebuilt in place by syncSetup)
     var controls = el('<div class="card"><h2 class="card__title">How many questions?</h2><div class="seg" role="group"></div></div>');
     var seg = controls.querySelector(".seg");
-    choices.forEach(function (c) {
-      var label = c === available ? "All (" + c + ")" : String(c);
-      var b = el('<button type="button" class="seg__btn' + (state.count === c ? " seg__btn--on" : "") + '">' + label + '</button>');
-      b.addEventListener("click", function () { state.count = c; renderSetup(); });
-      seg.appendChild(b);
-    });
     view.appendChild(controls);
 
     // mode picker: quiz vs review
@@ -163,36 +152,75 @@
     ];
     var modeCard = el('<div class="card"><h2 class="card__title">Mode</h2><div class="modes"></div></div>');
     var modeWrap = modeCard.querySelector(".modes");
+    var modeEls = {};
     modes.forEach(function (m) {
-      var on = state.mode === m.key;
       var b = el(
-        '<button type="button" class="mode' + (on ? " mode--on" : "") + '" aria-pressed="' + on + '">' +
+        '<button type="button" class="mode" aria-pressed="false">' +
           '<span class="mode__title">' + (m.key === "review" ? "📚 " : "📝 ") + m.title + '</span>' +
           '<span class="mode__desc">' + esc(m.desc) + '</span>' +
         '</button>'
       );
-      b.addEventListener("click", function () { state.mode = m.key; renderSetup(); });
+      b.addEventListener("click", function () { state.mode = m.key; syncSetup(); });
+      modeEls[m.key] = b;
       modeWrap.appendChild(b);
     });
     view.appendChild(modeCard);
 
-    var best = loadBest();
-    var bestKey = state.selectedTopics.slice().sort().join("+");
-    var bestLine = best[bestKey] != null
-      ? '<p class="start__best">Your best on this selection: <strong>' + best[bestKey] + '%</strong></p>' : '';
-
     var start = el(
       '<div class="start">' +
         '<button id="startBtn" class="btn btn--primary btn--lg">Start quiz →</button>' +
-        bestLine +
-        '<p class="start__meta">' + available + ' questions available across ' + state.selectedTopics.length + ' topic(s)</p>' +
+        '<p class="start__best" hidden></p>' +
+        '<p class="start__meta"></p>' +
         '<button id="techBtn" class="btn btn--ghost start__tech">🛠️ Advanced / Hacker Techniques (reference)</button>' +
       '</div>'
     );
+    var bestEl = start.querySelector(".start__best");
+    var metaEl = start.querySelector(".start__meta");
     start.querySelector("#startBtn").addEventListener("click", startQuiz);
     start.querySelector("#techBtn").addEventListener("click", renderTechniques);
     view.appendChild(start);
 
+    // Patch only the selection-dependent UI in place (no full re-render).
+    function syncSetup() {
+      // topic chips
+      Object.keys(chipEls).forEach(function (key) {
+        var on = state.selectedTopics.indexOf(key) !== -1;
+        chipEls[key].classList.toggle("topic--on", on);
+        chipEls[key].setAttribute("aria-pressed", on);
+      });
+      // mode chips
+      Object.keys(modeEls).forEach(function (key) {
+        var on = state.mode === key;
+        modeEls[key].classList.toggle("mode--on", on);
+        modeEls[key].setAttribute("aria-pressed", on);
+      });
+      // available count + question-count segmented control
+      var available = DATA.filter(function (q) {
+        return state.selectedTopics.indexOf(q.topic) !== -1;
+      }).length;
+      var choices = [5, 10, 15, 20].filter(function (c) { return c <= available; });
+      if (choices.indexOf(available) === -1) choices.push(available); // "all"
+      if (state.count > available) state.count = available;
+      seg.innerHTML = "";
+      choices.forEach(function (c) {
+        var label = c === available ? "All (" + c + ")" : String(c);
+        var b = el('<button type="button" class="seg__btn' + (state.count === c ? " seg__btn--on" : "") + '">' + label + '</button>');
+        b.addEventListener("click", function () { state.count = c; syncSetup(); });
+        seg.appendChild(b);
+      });
+      // best score + meta line
+      var best = loadBest();
+      var bestKey = state.selectedTopics.slice().sort().join("+");
+      if (best[bestKey] != null) {
+        bestEl.innerHTML = 'Your best on this selection: <strong>' + best[bestKey] + '%</strong>';
+        bestEl.hidden = false;
+      } else {
+        bestEl.hidden = true;
+      }
+      metaEl.textContent = available + ' questions available across ' + state.selectedTopics.length + ' topic(s)';
+    }
+
+    syncSetup();
     swap(view);
   }
 
