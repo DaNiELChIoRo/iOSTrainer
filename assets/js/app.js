@@ -72,16 +72,53 @@
     return best[key];
   }
 
-  // Build a "documentation to review" block for a topic (used in review mode & results).
-  function topicDocsBlock(topicKey) {
+  // Words too generic to help rank reading relevance.
+  var STOPWORDS = {};
+  ("which statements about are true correct the following can create when should you prefer over what does mean and why used which of these will match behavior into that with from this for not but also they them their your only always never each every some most many both either into onto than then them they've its it's swift ios apple use uses using need needs make makes work works help helps still same different between within without across whether have has had will would could should does done being been then here there where while during after before because such like just more less very much any all one two three four five type types value values thing things way ways case cases").split(/\s+/).forEach(function (w) { STOPWORDS[w] = true; });
+
+  // Rank a topic's reading links by textual overlap with a specific question,
+  // so the most relevant links float up and off-topic ones can be trimmed.
+  function rankReading(links, question) {
+    if (!question) return links.slice();
+    var text = (question.prompt + " " + (question.explanation || "") + " " +
+      (question.options || []).filter(function (o) { return o.correct; }).map(function (o) { return o.text; }).join(" ")
+    ).toLowerCase();
+    var words = {};
+    text.split(/[^a-z0-9@]+/).forEach(function (w) {
+      if (w.length >= 3 && !STOPWORDS[w]) words[w] = true;
+      var base = w.replace(/s$/, "");           // crude singular
+      if (base.length >= 3 && !STOPWORDS[base]) words[base] = true;
+    });
+    var keys = Object.keys(words);
+    return links.map(function (l, i) {
+      var t = l.title.toLowerCase();
+      var score = 0;
+      keys.forEach(function (w) { if (t.indexOf(w) !== -1) score++; });
+      return { l: l, score: score, i: i };
+    }).sort(function (a, b) { return (b.score - a.score) || (a.i - b.i); })
+      .map(function (x) { return x.l; });
+  }
+
+  // Build a "documentation to review" block (used in review mode & results).
+  // Pass `question` to show reading relevant to that specific question.
+  function topicDocsBlock(topicKey, question) {
+    // question-specific links win; otherwise rank the topic's links by relevance
+    var links = (question && question.reading && question.reading.length)
+      ? question.reading
+      : rankReading(BIB[topicKey] || [], question).slice(0, 3);
+
+    var heading = question
+      ? '📚 Suggested reading for this question'
+      : '📚 Review ' + esc(TOPICS[topicKey].name) + ' — suggested reading';
+
     var block = el(
       '<div class="topicdocs">' +
-        '<p class="topicdocs__head">📚 Review ' + esc(TOPICS[topicKey].name) + ' — suggested reading</p>' +
+        '<p class="topicdocs__head">' + heading + '</p>' +
         '<ul class="review__links"></ul>' +
       '</div>'
     );
     var ul = block.querySelector(".review__links");
-    (BIB[topicKey] || []).forEach(function (r) {
+    links.forEach(function (r) {
       ul.appendChild(el(
         '<li><a href="' + r.url + '" target="_blank" rel="noopener">' +
           esc(r.title) + '<span class="review__src">' + esc(r.source) + '</span></a></li>'
@@ -391,7 +428,7 @@
           '<p class="explain__body">' + esc(q.explanation) + '</p>' +
         '</div>'
       ));
-      if (state.mode === "review") card.appendChild(topicDocsBlock(q.topic));
+      if (state.mode === "review") card.appendChild(topicDocsBlock(q.topic, q));
 
       buildActions();
     }
