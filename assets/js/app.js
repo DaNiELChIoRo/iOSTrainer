@@ -45,12 +45,6 @@
 
   function isMulti(q) { return correctIndexes(q).length > 1; }
 
-  function isRight(q, chosen) {
-    var correct = correctIndexes(q).sort().join(",");
-    var picked = (chosen || []).slice().sort().join(",");
-    return correct === picked && picked.length > 0;
-  }
-
   function el(html) {
     var t = document.createElement("template");
     t.innerHTML = html.trim();
@@ -426,7 +420,11 @@
         markEls[i].textContent = glyph;
       });
 
-      var right = isRight(q, cur);
+      // Verdict must be computed against the *shuffled* options actually shown
+      // (item.options), not the original order — cur holds shuffled indexes.
+      var right = cur.length > 0 && item.options.every(function (opt, i) {
+        return opt.correct === (cur.indexOf(i) !== -1);
+      });
       card.appendChild(el(
         '<div class="explain ' + (right ? "explain--ok" : "explain--no") + '">' +
           '<p class="explain__verdict">' + (right ? "✅ Correct" : "❌ Not quite") + '</p>' +
