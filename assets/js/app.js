@@ -317,85 +317,111 @@
     card.appendChild(el('<p class="qcard__hint">' + (multi ? "Select all that apply" : "Select one") + '</p>'));
     card.appendChild(el('<h2 class="qcard__prompt">' + esc(q.prompt) + '</h2>'));
 
+    var mark = multi ? "checkbox" : "radio";
+    var rowEls = [], markEls = [], textEls = [];
     var list = el('<div class="options"></div>');
     item.options.forEach(function (opt, i) {
-      var picked = chosen.indexOf(i) !== -1;
-      var cls = "option";
-      var glyph = "";
-      var note = "";
-      if (locked) {
-        if (opt.correct && picked) { cls += " option--correct"; glyph = "✓"; }        // right pick
-        else if (opt.correct && !picked) {                                             // missed correct answer
-          cls += " option--missed";
-          note = '<span class="option__note">Correct answer — you missed this</span>';
-        }
-        else if (!opt.correct && picked) {                                             // wrong pick
-          cls += " option--wrong"; glyph = "✗";
-          note = '<span class="option__note option__note--bad">Your answer — incorrect</span>';
-        }
-      } else if (picked) { cls += " option--picked"; glyph = "✓"; }
-
-      var mark = multi ? "checkbox" : "radio";
       var row = el(
-        '<button type="button" class="' + cls + '" ' + (locked ? "disabled" : "") + '>' +
-          '<span class="option__mark option__mark--' + mark + '">' + glyph + '</span>' +
-          '<span class="option__text">' + esc(opt.text) + note + '</span>' +
+        '<button type="button" class="option">' +
+          '<span class="option__mark option__mark--' + mark + '"></span>' +
+          '<span class="option__text">' + esc(opt.text) + '</span>' +
         '</button>'
       );
-      if (!locked) {
-        row.addEventListener("click", function () {
-          var cur = state.answers[q.id] || [];
-          if (multi) {
-            var p = cur.indexOf(i);
-            if (p === -1) cur.push(i); else cur.splice(p, 1);
-          } else {
-            cur = [i];
-          }
-          state.answers[q.id] = cur;
-          renderQuestion();
-        });
-      }
+      row.addEventListener("click", function () {
+        if (state.locked[q.id]) return;                 // ignore after reveal
+        var cur = state.answers[q.id] || [];
+        if (multi) {
+          var p = cur.indexOf(i);
+          if (p === -1) cur.push(i); else cur.splice(p, 1);
+        } else {
+          cur = [i];
+        }
+        state.answers[q.id] = cur;
+        syncOptionSelection();                          // patch in place, no re-render
+      });
+      rowEls[i] = row;
+      markEls[i] = row.querySelector(".option__mark");
+      textEls[i] = row.querySelector(".option__text");
       list.appendChild(row);
     });
     card.appendChild(list);
+    view.appendChild(card);
 
-    if (locked) {
-      var right = isRight(q, chosen);
+    // actions container (contents swap on reveal)
+    var actions = el('<div class="actions"></div>');
+    view.appendChild(actions);
+
+    // --- in-place updates -------------------------------------------------
+    var submitBtn = null;
+
+    function syncOptionSelection() {
+      var cur = state.answers[q.id] || [];
+      item.options.forEach(function (opt, i) {
+        var picked = cur.indexOf(i) !== -1;
+        rowEls[i].classList.toggle("option--picked", picked);
+        markEls[i].textContent = picked ? "✓" : "";
+      });
+      if (submitBtn) submitBtn.disabled = cur.length === 0;
+    }
+
+    function revealAnswer() {
+      var cur = state.answers[q.id] || [];
+      item.options.forEach(function (opt, i) {
+        var picked = cur.indexOf(i) !== -1;
+        var row = rowEls[i];
+        row.disabled = true;
+        row.classList.remove("option--picked");
+        var glyph = "";
+        if (opt.correct && picked) { row.classList.add("option--correct"); glyph = "✓"; }
+        else if (opt.correct && !picked) {
+          row.classList.add("option--missed");
+          textEls[i].insertAdjacentHTML("beforeend", '<span class="option__note">Correct answer — you missed this</span>');
+        }
+        else if (!opt.correct && picked) {
+          row.classList.add("option--wrong"); glyph = "✗";
+          textEls[i].insertAdjacentHTML("beforeend", '<span class="option__note option__note--bad">Your answer — incorrect</span>');
+        }
+        markEls[i].textContent = glyph;
+      });
+
+      var right = isRight(q, cur);
       card.appendChild(el(
         '<div class="explain ' + (right ? "explain--ok" : "explain--no") + '">' +
           '<p class="explain__verdict">' + (right ? "✅ Correct" : "❌ Not quite") + '</p>' +
           '<p class="explain__body">' + esc(q.explanation) + '</p>' +
         '</div>'
       ));
+      if (state.mode === "review") card.appendChild(topicDocsBlock(q.topic));
 
-      // Review mode: show documentation links for this topic to review
-      if (state.mode === "review") {
-        card.appendChild(topicDocsBlock(q.topic));
+      buildActions();
+    }
+
+    function buildActions() {
+      actions.innerHTML = "";
+      submitBtn = null;
+      if (!state.locked[q.id]) {
+        submitBtn = el('<button class="btn btn--primary">Check answer</button>');
+        submitBtn.disabled = (state.answers[q.id] || []).length === 0;
+        submitBtn.addEventListener("click", function () { state.locked[q.id] = true; revealAnswer(); });
+        actions.appendChild(submitBtn);
+      } else {
+        var nextLabel = state.index + 1 < total ? "Next question →" : "See results →";
+        var next = el('<button class="btn btn--primary">' + nextLabel + '</button>');
+        next.addEventListener("click", function () {
+          if (state.index + 1 < total) { state.index++; renderQuestion(); }
+          else renderResults();
+        });
+        actions.appendChild(next);
       }
+      var quit = el('<button class="btn btn--ghost">Quit</button>');
+      quit.addEventListener("click", function () { if (confirm("End this quiz and return to the start?")) renderSetup(); });
+      actions.appendChild(quit);
     }
-    view.appendChild(card);
-
-    // actions
-    var actions = el('<div class="actions"></div>');
-    if (!locked) {
-      var submit = el('<button class="btn btn--primary" ' + (chosen.length === 0 ? "disabled" : "") + '>Check answer</button>');
-      submit.addEventListener("click", function () { state.locked[q.id] = true; renderQuestion(); });
-      actions.appendChild(submit);
-    } else {
-      var nextLabel = state.index + 1 < total ? "Next question →" : "See results →";
-      var next = el('<button class="btn btn--primary">' + nextLabel + '</button>');
-      next.addEventListener("click", function () {
-        if (state.index + 1 < total) { state.index++; renderQuestion(); }
-        else renderResults();
-      });
-      actions.appendChild(next);
-    }
-    var quit = el('<button class="btn btn--ghost">Quit</button>');
-    quit.addEventListener("click", function () { if (confirm("End this quiz and return to the start?")) renderSetup(); });
-    actions.appendChild(quit);
-    view.appendChild(actions);
 
     swap(view);
+    // initial paint (handles a fresh question, or one already answered/locked)
+    if (locked) { revealAnswer(); }
+    else { buildActions(); syncOptionSelection(); }
   }
 
   // ============================================================ RESULTS ====
