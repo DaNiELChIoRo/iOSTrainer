@@ -44,6 +44,8 @@ const DRY_RUN = process.env.DRY_RUN === "1";
 const SOURCES = [
   "https://raw.githubusercontent.com/onthecodepath/iOS-Interview-Questions/master/README.md",
   "https://raw.githubusercontent.com/dashvlas/awesome-ios-interview/master/README.md",
+  // objc.io — advanced iOS/macOS articles (no robots/AI restrictions).
+  "https://www.objc.io/blog/",
   // Included deliberately to demonstrate the robots/AI-signal guard skipping it:
   "https://www.hackingwithswift.com/interview-questions",
 ];

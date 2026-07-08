@@ -12,6 +12,7 @@ window.BIBLIOGRAPHY = {
     { title: "Generics in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/generics/" },
     { title: "Enumerations in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/enumerations/" },
     { title: "Swift knowledge & language basics", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/read" },
+    { title: "Advanced Swift (book)", source: "objc.io", url: "https://www.objc.io/books/advanced-swift/" },
     { title: "Swift & Objective-C interoperability (bridging)", source: "Apple Docs", url: "https://developer.apple.com/documentation/swift/imported-c-and-objective-c-apis" },
   ],
   generics: [
@@ -41,6 +42,7 @@ window.BIBLIOGRAPHY = {
     { title: "@StateObject vs @ObservedObject differences", source: "SwiftLee", url: "https://www.avanderlee.com/swiftui/stateobject-observedobject-differences/" },
     { title: "Property wrappers in Swift", source: "SwiftLee", url: "https://www.avanderlee.com/swift/property-wrappers/" },
     { title: "100 Days of SwiftUI", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/100/swiftui" },
+    { title: "Thinking in SwiftUI (book)", source: "objc.io", url: "https://www.objc.io/books/thinking-in-swiftui/" },
     { title: "SwiftUI by tutorials", source: "Kodeco", url: "https://www.kodeco.com/books/swiftui-by-tutorials" },
   ],
   swiftdata: [
@@ -91,6 +93,7 @@ window.BIBLIOGRAPHY = {
     { title: "MVVM by Tutorials / iOS architecture", source: "Kodeco", url: "https://www.kodeco.com/34-design-patterns-by-tutorials-mvvm" },
     { title: "iOS Architecture Patterns (MVC, MVVM, VIPER)", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/113/how-to-use-the-mvvm-design-pattern-in-swift" },
     { title: "The Composable Architecture (TCA)", source: "GitHub", url: "https://github.com/pointfreeco/swift-composable-architecture" },
+    { title: "App Architecture (book)", source: "objc.io", url: "https://www.objc.io/books/app-architecture/" },
     { title: "Dependency Injection to decouple layers", source: "SwiftLee", url: "https://www.avanderlee.com/swift/dependency-injection/" },
   ],
 };
