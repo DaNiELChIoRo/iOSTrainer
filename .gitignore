@@ -1,3 +1,4 @@
 scripts/scan.log
+scripts/last-run.log
 scripts/.cache/
 node_modules/

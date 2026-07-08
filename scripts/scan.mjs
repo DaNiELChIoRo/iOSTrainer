@@ -36,15 +36,20 @@ const OLLAMA = process.env.OLLAMA_URL || "http://localhost:11434";
 const GEN_MODELS = [process.env.GEN_MODEL || "gemma3:27b", "llama3:latest", "gemma4:latest"];
 const EMBED_MODEL = process.env.EMBED_MODEL || "nomic-embed-text";
 const MAX_NEW = parseInt(process.env.MAX_NEW || "8", 10);
-const SIM_THRESHOLD = parseFloat(process.env.SIM_THRESHOLD || "0.72");
+const SIM_THRESHOLD = parseFloat(process.env.SIM_THRESHOLD || "0.82");
 const DRY_RUN = process.env.DRY_RUN === "1";
 
 // Sources are gated by robots.txt + AI content-signals at runtime; disallowed
 // ones (e.g. sites that set ai-train=no) are skipped automatically.
+// Open-licensed (MIT) community interview-question repos + permitted sites.
+// Reddit and most forums are intentionally NOT here: Reddit returns 403 to
+// unauthenticated clients and requires registered OAuth credentials + an
+// AI-restrictive content policy, so scraping it is off-limits.
 const SOURCES = [
-  "https://raw.githubusercontent.com/onthecodepath/iOS-Interview-Questions/master/README.md",
-  "https://raw.githubusercontent.com/dashvlas/awesome-ios-interview/master/README.md",
-  // objc.io — advanced iOS/macOS articles (no robots/AI restrictions).
+  "https://raw.githubusercontent.com/HenestrosaDev/ios-interview-questions/main/README.md",       // MIT, ~150 seeds
+  "https://raw.githubusercontent.com/9magnets/iOS-Developer-and-Designer-Interview-Questions/master/README.md", // MIT, ~80 seeds
+  "https://raw.githubusercontent.com/onthecodepath/iOS-Interview-Questions/master/README.md",     // ~45 seeds
+  // objc.io — advanced iOS/macOS articles (no robots/AI restrictions; low seed yield).
   "https://www.objc.io/blog/",
   // Included deliberately to demonstrate the robots/AI-signal guard skipping it:
   "https://www.hackingwithswift.com/interview-questions",
@@ -110,18 +115,21 @@ async function fetchText(url) {
   return await r.text();
 }
 
+// Real technical questions start with a question word; behavioral/soft ones and
+// code-declaration lines (optional types end with "?") are filtered out.
+const QWORD = /^(what|how|why|which|when|where|who|can|could|would|should|is|are|do|does|did|explain|describe|name|give|list|define|compare)\b/i;
+const CODE = /^(var|let|func|class|struct|enum|protocol|extension|import|guard|for|while|switch|return|if)\b/i;
+const BEHAVIORAL = /yesterday|this week|excites|interests you|your workflow|do you contribute|open source projects|version control|favorite|walk me through|have you (ever|filed|used)|how do you stay|tell me about|your experience|did you learn|what is this for|salary|interviewer/i;
+
 function extractSeeds(raw) {
-  // strip tags if it's HTML, keep text
   const text = raw.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<[^>]+>/g, " ");
   const seeds = new Set();
   for (let line of text.split(/\r?\n/)) {
-    line = line.replace(/^[\s>*\-#0-9.)]+/, "").replace(/&amp;/g, "&").trim();
-    // a reasonable "interview question": ends in ?, sane length, has a verb-ish word
-    if (/\?$/.test(line) && line.length >= 15 && line.length <= 140 && /\s/.test(line)) {
-      // drop meta/section questions
-      if (/what is this for|why should|do you have any favorite|walk me through/i.test(line)) continue;
-      seeds.add(line.replace(/\s+/g, " "));
-    }
+    line = line.replace(/^[\s>*\-#0-9.)]+/, "").replace(/&amp;/g, "&").replace(/`/g, "").trim();
+    if (!/\?$/.test(line)) continue;
+    if (line.length < 18 || line.length > 160) continue;
+    if (!QWORD.test(line) || CODE.test(line) || BEHAVIORAL.test(line)) continue;
+    seeds.add(line.replace(/\s+/g, " "));
   }
   return [...seeds];
 }
