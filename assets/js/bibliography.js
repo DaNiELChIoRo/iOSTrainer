@@ -4,6 +4,13 @@
  * Sources: Kodeco (formerly Ray Wenderlich), Hacking with Swift, Apple Docs.
  */
 window.BIBLIOGRAPHY = {
+  swift: [
+    { title: "The Swift Programming Language (official book)", source: "Apple Docs", url: "https://docs.swift.org/swift-book/" },
+    { title: "What's new in Swift (June 2026 / Swift 6.4)", source: "Swift.org", url: "https://www.swift.org/blog/whats-new-in-swift-june-2026/" },
+    { title: "Swift 6.4: What's new in concurrency", source: "SwiftLee", url: "https://www.avanderlee.com/concurrency/swift-6-4-whats-new-in-concurrency/" },
+    { title: "Swift knowledge & language basics", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/read" },
+    { title: "Swift & Objective-C interoperability (bridging)", source: "Apple Docs", url: "https://developer.apple.com/documentation/swift/imported-c-and-objective-c-apis" },
+  ],
   memory: [
     { title: "ARC & Memory Management in Swift", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/" },
     { title: "How to avoid strong reference cycles", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/example-code/language/how-to-avoid-strong-reference-cycles-when-using-closures" },
@@ -32,6 +39,23 @@ window.BIBLIOGRAPHY = {
   concurrency: [
     { title: "Swift Concurrency (async/await, actors)", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/" },
     { title: "What is async/await in Swift?", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/quick-start/concurrency" },
+    { title: "Dispatch (Grand Central Dispatch) reference", source: "Apple Docs", url: "https://developer.apple.com/documentation/dispatch" },
     { title: "Modern concurrency in Swift", source: "Kodeco", url: "https://www.kodeco.com/books/modern-concurrency-in-swift" },
+  ],
+  libraries: [
+    { title: "Swift Package Manager", source: "Apple Docs", url: "https://developer.apple.com/documentation/xcode/swift-packages" },
+    { title: "Alamofire (elegant HTTP networking)", source: "GitHub", url: "https://github.com/Alamofire/Alamofire" },
+    { title: "URLSession — first-party networking", source: "Apple Docs", url: "https://developer.apple.com/documentation/foundation/urlsession" },
+    { title: "Encoding and decoding with Codable", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/quick-start/swiftui/how-to-load-and-parse-json" },
+  ],
+  patterns: [
+    { title: "Design Patterns by Tutorials", source: "Kodeco", url: "https://www.kodeco.com/books/design-patterns-by-tutorials" },
+    { title: "Cocoa Design Patterns (MVC, delegation, KVO…)", source: "Apple Docs", url: "https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/" },
+    { title: "The Coordinator pattern in iOS", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/71/how-to-use-the-coordinator-pattern-in-ios-apps" },
+  ],
+  architecture: [
+    { title: "MVVM by Tutorials / iOS architecture", source: "Kodeco", url: "https://www.kodeco.com/34-design-patterns-by-tutorials-mvvm" },
+    { title: "iOS Architecture Patterns (MVC, MVVM, VIPER)", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/113/how-to-use-the-mvvm-design-pattern-in-swift" },
+    { title: "The Composable Architecture (TCA)", source: "GitHub", url: "https://github.com/pointfreeco/swift-composable-architecture" },
   ],
 };

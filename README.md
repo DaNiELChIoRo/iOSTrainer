@@ -6,12 +6,18 @@ A zero-dependency web app that quizzes iOS engineers with **multiple-answer** qu
 
 | Topic | What it tests |
 |-------|---------------|
+| 🦅 Swift Language | value/reference types, optionals, generics, protocols, bridging/interop, **Swift 6.4** additions |
 | 🧠 Memory Management | ARC, retain cycles, `weak`/`unowned`, capture lists, `autoreleasepool` |
 | 📐 Layout | Auto Layout, intrinsic content size, hugging/compression, SwiftUI layout |
 | 🎨 SwiftUI | `@State`/`@Binding`/`@StateObject`, view identity, `@Observable` |
 | 🗃️ SwiftData | `@Model`, `ModelContainer`, `@Query`, `ModelContext` |
 | 💾 Core Data | contexts, `NSPersistentContainer`, faulting, background work |
-| ⚡ Concurrency | `async`/`await`, actors, `@MainActor`, `Sendable`, task groups |
+| ⚡ Concurrency | `async`/`await`, actors, `@MainActor`, `Sendable`, task groups, **GCD / DispatchGroup** |
+| 📦 Third-Party Libs | Alamofire vs URLSession, image loading, Realm, SPM/CocoaPods/Carthage |
+| ♟️ Design Patterns | creational/structural/behavioral; delegate, observer, singleton, coordinator |
+| 🏛️ Architecture | MVC, MVVM, VIPER, Clean Architecture, TCA |
+
+> **Swift 6.4 coverage** (WWDC 2026): `anyAppleOS`, async `defer` (SE-0493), the `Iterable` protocol, `@C` export, `@diagnose`, task cancellation shields, and the unused-throwing-`Task` warning.
 
 ## Features
 
