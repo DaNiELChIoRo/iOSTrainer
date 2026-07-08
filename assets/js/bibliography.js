@@ -14,6 +14,17 @@ window.BIBLIOGRAPHY = {
     { title: "Swift knowledge & language basics", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/read" },
     { title: "Swift & Objective-C interoperability (bridging)", source: "Apple Docs", url: "https://developer.apple.com/documentation/swift/imported-c-and-objective-c-apis" },
   ],
+  generics: [
+    { title: "Generics — The Swift Programming Language", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/generics/" },
+    { title: "Generics in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/generics/" },
+    { title: "Opaque and boxed protocol types (some vs any)", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/opaquetypes/" },
+    { title: "What are generics?", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/quick-start/understanding-swift/what-are-generics" },
+  ],
+  optionals: [
+    { title: "Optional Chaining & Optionals", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/optionalchaining/" },
+    { title: "Optionals in Swift explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/optionals-in-swift/" },
+    { title: "How to unwrap an optional in Swift", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/example-code/language/how-to-unwrap-an-optional-in-swift" },
+  ],
   memory: [
     { title: "ARC & Memory Management in Swift", source: "Apple Docs", url: "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting/" },
     { title: "Weak self and reference cycles explained", source: "SwiftLee", url: "https://www.avanderlee.com/swift/weak-self/" },

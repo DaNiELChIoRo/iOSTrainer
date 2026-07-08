@@ -6,6 +6,8 @@
  */
 window.QUIZ_TOPICS = {
   swift:       { name: "Swift Language",    icon: "🦅", blurb: "Value/reference types, optionals, generics, protocols, Swift 6.4." },
+  generics:    { name: "Generics",          icon: "🧬", blurb: "Type parameters, constraints, associated types, some vs any, type erasure." },
+  optionals:   { name: "Optionals",         icon: "❓", blurb: "Optional<Wrapped>, unwrapping, chaining, IUOs, map/flatMap." },
   memory:      { name: "Memory Management", icon: "🧠", blurb: "ARC, retain cycles, weak/unowned, capture lists." },
   layout:      { name: "Layout",            icon: "📐", blurb: "Auto Layout, intrinsic size, priorities, SwiftUI layout." },
   swiftui:     { name: "SwiftUI",           icon: "🎨", blurb: "State, data flow, view identity, property wrappers." },
@@ -983,5 +985,119 @@ window.QUIZ_DATA = [
       { text: "If two categories define the same method, the runtime reliably picks the 'best' one", correct: false },
     ],
     explanation: "Categories extend classes with new methods; class extensions declare private API. Categories can't add real instance variables — associated objects fill that gap. Duplicate category methods produce undefined which-wins behavior, so it should be avoided.",
+  },
+
+  /* ----------------------------------------------------------------- GENERICS */
+  {
+    id: "gen-1", topic: "generics",
+    prompt: "Which statements about generic functions and types are correct?",
+    options: [
+      { text: "`func swap<T>(_ a: inout T, _ b: inout T)` works for any type T", correct: true },
+      { text: "Generic types like `Array<Element>` and `Optional<Wrapped>` are built with the same mechanism", correct: true },
+      { text: "The compiler infers type parameters from the call site when possible", correct: true },
+      { text: "Generics use runtime type checks and boxing for every call, like `Any`", correct: false },
+    ],
+    explanation: "Generics give type-safe, reusable code with compile-time checking; the standard library's `Array`, `Dictionary`, and `Optional` are all generic. The compiler infers `T` from arguments and can specialize generic code — it's not the same as boxing everything into `Any`.",
+  },
+  {
+    id: "gen-2", topic: "generics",
+    prompt: "Which are valid ways to constrain a generic parameter?",
+    options: [
+      { text: "`func max<T: Comparable>(_ a: T, _ b: T) -> T`", correct: true },
+      { text: "A `where` clause, e.g. `where T: Equatable, T.Element == Int`", correct: true },
+      { text: "Requiring conformance to multiple protocols with `T: A & B` or separate constraints", correct: true },
+      { text: "Constraints are ignored at compile time and only checked when the app runs", correct: false },
+    ],
+    explanation: "You constrain type parameters with protocol/`class`/same-type requirements, either inline (`T: Comparable`) or in a `where` clause. These are enforced by the compiler, so misuse is a build error, not a runtime crash.",
+  },
+  {
+    id: "gen-3", topic: "generics",
+    prompt: "Which are true about `associatedtype` in protocols?",
+    options: [
+      { text: "It declares a placeholder type a conforming type must specify (e.g. `Element` in `Sequence`)", correct: true },
+      { text: "A protocol with associated types can be used as a generic constraint (`some`/`any` or `where`)", correct: true },
+      { text: "You can give an associated type a default with `= SomeType`", correct: true },
+      { text: "Associated types make a protocol behave exactly like a concrete generic struct", correct: false },
+    ],
+    explanation: "Associated types are protocol-level type placeholders (like `Sequence.Element`) that conformers pin down. They can carry defaults and constraints. They make the protocol generic-like, but a protocol is still an abstraction, not a concrete type.",
+  },
+  {
+    id: "gen-4", topic: "generics",
+    prompt: "What is the difference between `some P` (opaque) and `any P` (existential)?",
+    options: [
+      { text: "`some P` hides one specific concrete type chosen by the implementation", correct: true },
+      { text: "`any P` is a box that can hold different conforming types at runtime", correct: true },
+      { text: "`some P` generally preserves type identity and can be more efficient (no boxing)", correct: true },
+      { text: "`any P` and `some P` are just two spellings of the exact same feature", correct: false },
+    ],
+    explanation: "`some P` is an opaque result type: one fixed underlying type the caller can't see but that stays consistent. `any P` is an existential — a runtime box that can hold any conformer, with more overhead and fewer guarantees. They are genuinely different tools.",
+  },
+  {
+    id: "gen-5", topic: "generics",
+    prompt: "Which statements about type erasure are correct?",
+    options: [
+      { text: "It wraps a protocol-with-associated-types (or generic) behind a concrete type like `AnySequence` or `AnyPublisher`", correct: true },
+      { text: "It's useful when you need to store or return heterogeneous values in a single type", correct: true },
+      { text: "SwiftUI's `AnyView` is a form of type erasure", correct: true },
+      { text: "Type erasure always improves performance over using the concrete generic type", correct: false },
+    ],
+    explanation: "Type-erasing wrappers (`AnySequence`, `AnyPublisher`, `AnyView`) hide the concrete generic type so values can share one static type. It aids API flexibility but adds indirection — it typically costs a little performance, not gains it.",
+  },
+
+  /* ---------------------------------------------------------------- OPTIONALS */
+  {
+    id: "opt-1", topic: "optionals",
+    prompt: "What is a Swift Optional, fundamentally?",
+    options: [
+      { text: "An enum with two cases: `.some(Wrapped)` and `.none`", correct: true },
+      { text: "`String?` is syntactic sugar for `Optional<String>`", correct: true },
+      { text: "It represents the possible absence of a value", correct: true },
+      { text: "`nil` in Swift is a pointer to address zero, like in C", correct: false },
+    ],
+    explanation: "`Optional<Wrapped>` is a generic enum (`.some`/`.none`); `T?` is sugar for it and `nil` means `.none`. Unlike C, Swift `nil` isn't a zero pointer — it's the `.none` case, so even value types can be optional.",
+  },
+  {
+    id: "opt-2", topic: "optionals",
+    prompt: "Which are safe ways to unwrap an Optional?",
+    options: [
+      { text: "`if let value = optional { … }` / `guard let value = optional else { … }`", correct: true },
+      { text: "Nil-coalescing: `optional ?? defaultValue`", correct: true },
+      { text: "Optional chaining: `optional?.property`", correct: true },
+      { text: "Force unwrap `optional!` is always safe regardless of the value", correct: false },
+    ],
+    explanation: "Binding, `??`, and `?.` all handle `nil` gracefully. Force-unwrapping (`!`) crashes when the value is `nil`, so it's only safe when you can guarantee a value exists.",
+  },
+  {
+    id: "opt-3", topic: "optionals",
+    prompt: "Which statements about optional chaining are correct?",
+    options: [
+      { text: "`a?.b?.c` short-circuits to `nil` if any link is `nil`", correct: true },
+      { text: "The result of optional chaining is itself an Optional", correct: true },
+      { text: "You can chain method calls and subscripts, e.g. `array?.first?.uppercased()`", correct: true },
+      { text: "Optional chaining force-unwraps each step and can crash", correct: false },
+    ],
+    explanation: "Optional chaining safely stops at the first `nil` and yields an Optional of the final value — no crash. Even calling a method that returns a non-optional through a chain gives you an optional result.",
+  },
+  {
+    id: "opt-4", topic: "optionals",
+    prompt: "Which are true about implicitly unwrapped optionals (IUOs), written `T!`?",
+    options: [
+      { text: "They are still optionals but are automatically unwrapped when accessed", correct: true },
+      { text: "Accessing one that currently holds `nil` traps at runtime", correct: true },
+      { text: "They're common for `@IBOutlet`s and values set right after init but before first use", correct: true },
+      { text: "An IUO can never be `nil`", correct: false },
+    ],
+    explanation: "An IUO (`T!`) is an optional that skips explicit unwrapping at the use site; if it's `nil` when accessed, it crashes. They exist for cases like outlets or two-phase initialization where a value is guaranteed shortly after creation — but they can still be `nil`.",
+  },
+  {
+    id: "opt-5", topic: "optionals",
+    prompt: "Which statements about `map`, `flatMap`, and pattern matching on optionals are correct?",
+    options: [
+      { text: "`optional.map { … }` transforms the wrapped value if present, else stays `nil`", correct: true },
+      { text: "`flatMap` avoids nesting when the transform itself returns an optional (no `Int??`)", correct: true },
+      { text: "You can match with `if case .some(let x) = optional` or `switch`", correct: true },
+      { text: "`map` on a `nil` optional still runs the closure once with a default value", correct: false },
+    ],
+    explanation: "`map`/`flatMap` operate only when the optional is `.some`, leaving `.none` untouched — `flatMap` flattens a doubly-optional result. Optionals are enums, so you can pattern-match them. On `nil`, the closure is not called at all.",
   },
 ];
