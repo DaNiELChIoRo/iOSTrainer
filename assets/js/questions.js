@@ -189,6 +189,28 @@ window.QUIZ_DATA = [
     ],
     explanation: "`@Observable` replaces ObservableObject/@Published and tracks reads at the property level, so a view updates only for the fields it reads. You reference such objects with plain properties, @State, @Bindable, or @Environment — not @ObservedObject.",
   },
+  {
+    id: "sui-6", topic: "swiftui",
+    prompt: "What are the differences between the `ObservableObject` protocol and the newer `@Observable` macro?",
+    options: [
+      { text: "`ObservableObject` is a protocol you conform to and mark properties with `@Published`; `@Observable` is a macro applied to the class with no per-property annotation", correct: true },
+      { text: "`ObservableObject` notifies on any `@Published` change (via `objectWillChange`), so a view can re-render even for properties it doesn't read", correct: true },
+      { text: "`@Observable` tracks reads per-property, so views only update when a property they actually use changes — often fewer redraws", correct: true },
+      { text: "Both require the class to conform to `ObservableObject` and use `@ObservedObject` in the view", correct: false },
+    ],
+    explanation: "`ObservableObject` (Combine-based) uses `@Published` + `objectWillChange` and can over-invalidate views. `@Observable` (Observation framework, iOS 17+) drops the protocol and `@Published`, tracks dependencies at the property level for finer-grained updates, and is observed with plain properties / `@State` / `@Bindable` / `@Environment` — not `@ObservedObject`.",
+  },
+  {
+    id: "sui-7", topic: "swiftui",
+    prompt: "When migrating a view model from `ObservableObject` to `@Observable`, which changes are correct?",
+    options: [
+      { text: "Replace `class VM: ObservableObject` with `@Observable class VM`", correct: true },
+      { text: "Remove `@Published` from stored properties", correct: true },
+      { text: "In the view, change `@StateObject var vm = VM()` to `@State var vm = VM()`", correct: true },
+      { text: "Keep using `@ObservedObject var vm: VM` for objects passed in", correct: false },
+    ],
+    explanation: "With `@Observable`: annotate the class, drop `@Published`, and own it with `@State` (instead of `@StateObject`). A passed-in object is just a plain `let`/`var` property, and two-way bindings use `@Bindable` — `@ObservedObject`/`@StateObject` are no longer used.",
+  },
 
   /* ------------------------------------------------------------- SWIFTDATA */
   {
