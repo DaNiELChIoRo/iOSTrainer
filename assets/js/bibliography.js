@@ -89,6 +89,17 @@ window.BIBLIOGRAPHY = {
     { title: "Cocoa Design Patterns (MVC, delegation, KVO…)", source: "Apple Docs", url: "https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/" },
     { title: "The Coordinator pattern in iOS", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/71/how-to-use-the-coordinator-pattern-in-ios-apps" },
   ],
+  security: [
+    { title: "OWASP Mobile Application Security (MASVS / MASTG)", source: "OWASP", url: "https://mas.owasp.org/" },
+    { title: "Keychain Services", source: "Apple Docs", url: "https://developer.apple.com/documentation/security/keychain-services" },
+    { title: "Restricting keychain item accessibility", source: "Apple Docs", url: "https://developer.apple.com/documentation/security/restricting-keychain-item-accessibility" },
+    { title: "Preventing insecure network connections (ATS & pinning)", source: "Apple Docs", url: "https://developer.apple.com/documentation/security/preventing-insecure-network-connections" },
+    { title: "Performing manual server trust authentication", source: "Apple Docs", url: "https://developer.apple.com/documentation/foundation/url-loading-system/performing-manual-server-trust-authentication" },
+    { title: "Authenticating a user through a web service (ASWebAuthenticationSession)", source: "Apple Docs", url: "https://developer.apple.com/documentation/authenticationservices/authenticating-a-user-through-a-web-service" },
+    { title: "OAuth 2.0 for Native Apps (RFC 8252 / PKCE)", source: "IETF", url: "https://datatracker.ietf.org/doc/html/rfc8252" },
+    { title: "Logging a user into your app with Face ID or Touch ID", source: "Apple Docs", url: "https://developer.apple.com/documentation/localauthentication/logging-a-user-into-your-app-with-face-id-or-touch-id" },
+    { title: "Establishing your app's integrity (App Attest)", source: "Apple Docs", url: "https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity" },
+  ],
   architecture: [
     { title: "MVVM by Tutorials / iOS architecture", source: "Kodeco", url: "https://www.kodeco.com/34-design-patterns-by-tutorials-mvvm" },
     { title: "iOS Architecture Patterns (MVC, MVVM, VIPER)", source: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/113/how-to-use-the-mvvm-design-pattern-in-swift" },

@@ -19,6 +19,7 @@ window.QUIZ_TOPICS = {
   libraries:   { name: "Third-Party Libs",  icon: "📦", blurb: "Alamofire, image loading, DI, Realm, SPM/CocoaPods." },
   patterns:    { name: "Design Patterns",   icon: "♟️", blurb: "Creational, structural, behavioral; delegate, observer, singleton." },
   architecture:{ name: "Architecture",      icon: "🏛️", blurb: "MVC, MVVM, VIPER, Clean, TCA; separation of concerns." },
+  security:    { name: "App Security",       icon: "🔐", blurb: "Keychain config, SSL pinning, auth & biometrics, finance-grade hardening." },
 };
 
 window.QUIZ_DATA = [
@@ -1165,5 +1166,95 @@ window.QUIZ_DATA = [
       { text: "`map` on a `nil` optional still runs the closure once with a default value", correct: false },
     ],
     explanation: "`map`/`flatMap` operate only when the optional is `.some`, leaving `.none` untouched — `flatMap` flattens a doubly-optional result. Optionals are enums, so you can pattern-match them. On `nil`, the closure is not called at all.",
+  },
+
+  /* -------------------------------------------------------------- SECURITY */
+  {
+    id: "sec-1", topic: "security",
+    prompt: "Storing secrets in the iOS Keychain — which statements are true?",
+    options: [
+      { text: "The `kSecAttrAccessible` attribute controls when an item is readable (e.g. only after first unlock, only while unlocked)", correct: true },
+      { text: "A `...ThisDeviceOnly` accessibility class prevents the item from being restored to another device via backup", correct: true },
+      { text: "`UserDefaults` is an acceptable place for auth tokens", correct: false },
+      { text: "Keychain items can survive an app uninstall, so a fresh install may see stale credentials", correct: true },
+    ],
+    explanation: "Choose accessibility deliberately: `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` (or `AfterFirstUnlockThisDeviceOnly`) keeps secrets off iCloud/encrypted backups. `UserDefaults` is an unencrypted plist. Because Keychain data can outlive an uninstall, finance apps commonly wipe stored credentials on first launch after a reinstall.",
+  },
+  {
+    id: "sec-2", topic: "security",
+    prompt: "What is SSL/certificate pinning, and why do finance apps use it?",
+    options: [
+      { text: "It validates the server's certificate or public key against values shipped in the app, on top of the OS's normal TLS trust evaluation", correct: true },
+      { text: "It defends against compromised/mis-issued CAs and user-installed root certificates (MITM proxies)", correct: true },
+      { text: "Pinning the public key (SPKI) tolerates routine certificate renewal better than pinning the exact certificate", correct: true },
+      { text: "Pinning removes the need for HTTPS", correct: false },
+    ],
+    explanation: "Default TLS trusts any certificate chaining to a system-trusted root — including a configuration-profile root an attacker tricked the user into installing. Pinning narrows trust to *your* key. Pin the SPKI hash and ship a backup pin, or a server certificate rotation can break your app's networking.",
+  },
+  {
+    id: "sec-3", topic: "security",
+    prompt: "Implementing certificate pinning on iOS — which statements are true?",
+    options: [
+      { text: "You can pin in code via `urlSession(_:didReceive:completionHandler:)`, evaluating the server trust before returning a credential", correct: true },
+      { text: "Since iOS 14 you can pin declaratively with `NSPinnedDomains` in the ATS section of Info.plist", correct: true },
+      { text: "Calling the completion handler with `.useCredential` for the server trust without evaluating it is a safe implementation", correct: false },
+      { text: "A correctly pinned build should fail to connect through Charles/mitmproxy", correct: true },
+    ],
+    explanation: "In the delegate you must actually evaluate the trust (e.g. `SecTrustEvaluateWithError`) and compare the leaf/SPKI before calling `.useCredential`; blindly trusting `challenge.protectionSpace.serverTrust` disables validation — a classic audit finding. `NSPinnedDomains` is the declarative alternative. Always confirm the pin blocks an interception proxy before shipping.",
+  },
+  {
+    id: "sec-4", topic: "security",
+    prompt: "Authentication best practices for iOS apps — which statements are true?",
+    options: [
+      { text: "OAuth 2.0 Authorization Code flow with PKCE via `ASWebAuthenticationSession` is the recommended approach (RFC 8252)", correct: true },
+      { text: "Access/refresh tokens belong in the Keychain, never in `UserDefaults`, logs, or the app bundle", correct: true },
+      { text: "Embedding a long-lived client secret in the app binary is fine because the binary is encrypted on the App Store", correct: false },
+      { text: "Short-lived access tokens with rotating refresh tokens limit the blast radius of a leaked token", correct: true },
+    ],
+    explanation: "Native apps can't keep secrets — App Store encryption is trivially stripped once decrypted in memory, which is why PKCE exists (no client secret needed). Use the system auth session (not an embedded `WKWebView`, which can harvest credentials), keep access tokens short-lived, and revoke server-side on anomaly.",
+  },
+  {
+    id: "sec-5", topic: "security",
+    prompt: "Biometric authentication with LocalAuthentication — which statements are true?",
+    options: [
+      { text: "`LAContext.evaluatePolicy` gates access behind Face ID / Touch ID", correct: true },
+      { text: "A successful local biometric check, by itself, proves the user's identity to your backend", correct: false },
+      { text: "Stronger designs bind biometrics to a Keychain/Secure Enclave key via `SecAccessControl` (e.g. `.biometryCurrentSet`)", correct: true },
+      { text: "You should handle enrollment changes and offer an appropriate fallback (device passcode)", correct: true },
+    ],
+    explanation: "A bare `if success` around `evaluatePolicy` can be hooked on a jailbroken device and tells the server nothing. Bind the biometric to cryptographic material instead: an access-control-protected Keychain item or a Secure Enclave key is released/usable only after authentication, and that key signs the request the backend verifies. `.biometryCurrentSet` invalidates if fingerprints/faces change.",
+  },
+  {
+    id: "sec-6", topic: "security",
+    prompt: "Hardening a finance-grade iOS app — which practices are standard?",
+    options: [
+      { text: "Detect jailbroken devices (suspicious paths, `fork()` success, sandbox escapes) and restrict sensitive functionality", correct: true },
+      { text: "Mask sensitive screens in the app-switcher snapshot (e.g. cover the UI in `sceneWillResignActive`)", correct: true },
+      { text: "Use App Attest / DeviceCheck so the backend can verify calls come from your genuine, unmodified app", correct: true },
+      { text: "With thorough client-side checks, server-side validation becomes unnecessary", correct: false },
+    ],
+    explanation: "Client checks (jailbreak detection, snapshot masking, obfuscation) raise the attacker's cost but are all bypassable on a device they control — the server must independently authorize every transaction. Apple's App Attest gives the backend a hardware-backed signal that the request came from a legitimate build.",
+  },
+  {
+    id: "sec-7", topic: "security",
+    prompt: "Secure transport on iOS — which statements are true?",
+    options: [
+      { text: "App Transport Security blocks plaintext HTTP by default, requiring TLS", correct: true },
+      { text: "TLS/trust-evaluation failures should fail the request — never silently fall back to an insecure connection", correct: true },
+      { text: "Adding `NSAllowsArbitraryLoads` for a leftover debug endpoint in a production build is harmless", correct: false },
+      { text: "App Attest / DeviceCheck help distinguish your real app from scripts, emulators, and tampered builds", correct: true },
+    ],
+    explanation: "ATS defaults to TLS 1.2+ for good reason; every exception you carve out (`NSAllowsArbitraryLoads`, per-domain exceptions) is attack surface that needs justification and App Review scrutiny. Attestation APIs let the server tell your genuine app apart from automated abuse.",
+  },
+  {
+    id: "sec-8", topic: "security",
+    prompt: "Preventing sensitive-data leakage on iOS — which statements are true?",
+    options: [
+      { text: "Don't log tokens, PANs, or PII — device console logs and crash reports get harvested", correct: true },
+      { text: "Mask balances/card numbers before the app is backgrounded so they don't appear in the switcher snapshot", correct: true },
+      { text: "The general `UIPasteboard` is readable by other apps — avoid copying secrets there, or expire them", correct: true },
+      { text: "Marking a Swift property `private` encrypts its value in memory at runtime", correct: false },
+    ],
+    explanation: "OWASP MASTG's recurring iOS findings: secrets in `os_log`/`print` output, sensitive UI captured in the task-switcher snapshot, and long-lived data on the shared pasteboard. `private` is compile-time access control, not runtime protection — audit what your app writes with Console.app before a pentester does.",
   },
 ];
